@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "message": "Payment Received",
+    "type": "payment",
+    "time": 0,
+    "icon": "💰",
+    "isRead": false
+  },
+  {
+    "id": 2,
+    "message": "New User",
+    "type": "user",
+    "time": 5,
+    "icon": "👤",
+    "isRead": false
+  },
+  {
+    "id": 3,
+    "message": "New Order",
+    "type": "order",
+    "time": 10,
+    "icon": "📦",
+    "isRead": false
+  },
+  {
+    "id": 4,
+    "message": "System Alert",
+    "type": "alert",
+    "time": 15,
+    "icon": "⚠️",
+    "isRead": false
+  }
+]
