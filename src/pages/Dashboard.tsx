@@ -7,6 +7,8 @@ import ThemeToggle from "../components/theme/ThemeToggle";
 import { useChartData } from "../hooks/useChartData";
 import { useDataTable } from "../hooks/useDataTable";
 import { useNotifications } from "../hooks/useNotifications";
+import { useUsers } from "../hooks/useUsers";
+import UserList from "../components/user/UserList";
 
 const dashboardData = [
   { title: "Revenue", value: "₹25,000", trend: "-12%", icon: "💰" },
@@ -26,12 +28,19 @@ const Dashboard = ({ theme, setTheme, setToast }: DashboardProps) => {
   const { notifications, notificationsLoading, notificationHasError } =
     useNotifications();
   const { dataTable, dataTableLoadering, dataTableHasError } = useDataTable();
+  const { users, addUser, updateUser, deleteUser } = useUsers();
 
   return (
     <div>
       <ThemeToggle theme={theme} setTheme={setTheme} setToast={setToast} />
       <StatsGrid dashboardData={dashboardData} />
       <ChartCard chartData={data} loading={loading} hasError={hasError} />
+      <UserList
+        users={users}
+        addUser={addUser}
+        updateUser={updateUser}
+        deleteUser={deleteUser}
+      />
       <DataTable
         dataTable={dataTable}
         dataTableLoadering={dataTableLoadering}

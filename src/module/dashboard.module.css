@@ -20,7 +20,7 @@ body {
 }
 
 .card {
-  width: 250px;
+  width: 200x;
   padding: 5px;
   background-color: #fff;
   border-radius: 12px;
@@ -263,4 +263,57 @@ input {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+.layout > :first-child {
+  flex-shrink: 0;
+}
+.layout > :last-child {
+  flex: 1;
+  padding: 20px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 18px;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: #e5e7eb;
+}
+
+.active {
+  list-style: none;
+  padding: 14px 18px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 6px;
+
+  background: #2563eb;
+  color: white;
+}
+.logo {
+  margin-bottom: 30px;
+}
+.usereditbtn {
+  width: 80px;
+  margin: 5px;
+  padding: 10px;
+  background-color: rgba(6, 68, 225, 0.867);
+  font-size: 16px;
+}
+.userdeletebtn {
+  width: 90px;
+  margin: 5px;
+  padding: 10px;
+  background-color: rgba(225, 6, 6, 0.867);
+  font-size: 16px;
 }
