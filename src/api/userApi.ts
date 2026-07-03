@@ -1,47 +1,44 @@
-import { useEffect, useState } from "react";
 import type { UsersType } from "../types/user";
 import { Users } from "../data/users";
 
-export const useUsers = () => {
-  const [users, setUsers] = useState<UsersType[]>(() => {
-    try {
-      const storageUsers = localStorage.getItem("users");
+export const fetchUser = async (): Promise<UsersType[]> => {
+  try {
+    const storageUsers = localStorage.getItem("users");
 
-      return storageUsers ? JSON.parse(storageUsers) : Users;
-    } catch {
-      return Users;
-    }
-  });
+    return storageUsers ? JSON.parse(storageUsers) : Users;
+  } catch {
+    return Users;
+  }
+};
 
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
-  }, [users]);
+export const addUser = async (newUser: UsersType) => {
+  const users = await fetchUser();
 
-  const addUser = (newUser: UsersType) => {
-    setUsers((prev) => [...prev, newUser]);
-  };
+  const updated = [...users, newUser];
 
-  const updateUser = (updatedUser: UsersType) => {
-    setUsers((prev) => {
-      const updated = prev.map((user) =>
-        user.id === updatedUser.id ? updatedUser : user,
-      );
+  localStorage.setItem("users", JSON.stringify(updated));
 
-      localStorage.setItem("users", JSON.stringify(updated));
+  return newUser;
+};
 
-      return updated;
-    });
-  };
+export const updateUser = async (updatedUser: UsersType) => {
+  const users = await fetchUser();
 
-  const deleteUser = (id: number) => {
-    setUsers((prev) => {
-      const updated = prev.filter((user) => user.id !== id);
+  const udpated = users.map((user) =>
+    user.id === updatedUser.id ? updatedUser : user,
+  );
 
-      localStorage.setItem("users", JSON.stringify(updated));
+  localStorage.setItem("users", JSON.stringify(udpated));
 
-      return updated;
-    });
-  };
+  return updatedUser;
+};
 
-  return { users, addUser, updateUser, deleteUser };
+export const deleteUser = async (id: number) => {
+  const users = await fetchUser();
+
+  const updated = users.filter((user) => user.id !== id);
+
+  localStorage.setItem("users", JSON.stringify(updated));
+
+  return id;
 };

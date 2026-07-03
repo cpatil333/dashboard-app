@@ -69,7 +69,7 @@ const UserModal = ({
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value: /^\$+@\$+\.\$+$/,
+                    value: /^\S+@\S+\.\S+$/,
                     message: "Invalid email",
                   },
                 })}

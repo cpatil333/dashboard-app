@@ -1,47 +1,48 @@
-import { useEffect, useState } from "react";
-import type { UsersType } from "../types/user";
-import { Users } from "../data/users";
+import { fetchUser, addUser, updateUser, deleteUser } from "../api/userApi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useUsers = () => {
-  const [users, setUsers] = useState<UsersType[]>(() => {
-    try {
-      const storageUsers = localStorage.getItem("users");
+  const queryClient = useQueryClient();
 
-      return storageUsers ? JSON.parse(storageUsers) : Users;
-    } catch {
-      return Users;
-    }
+  // Fetch
+  const { data: users = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUser,
   });
 
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
-  }, [users]);
+  //Add
+  const addMutation = useMutation({
+    mutationFn: addUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
+  });
 
-  const addUser = (newUser: UsersType) => {
-    setUsers((prev) => [...prev, newUser]);
+  //update
+  const updateMutation = useMutation({
+    mutationFn: updateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
+  });
+
+  return {
+    users,
+    addUser: addMutation.mutate,
+    updateUser: updateMutation.mutate,
+    deleteUser: deleteMutation.mutate,
   };
-
-  const updateUser = (updatedUser: UsersType) => {
-    setUsers((prev) => {
-      const updated = prev.map((user) =>
-        user.id === updatedUser.id ? updatedUser : user,
-      );
-
-      localStorage.setItem("users", JSON.stringify(updated));
-
-      return updated;
-    });
-  };
-
-  const deleteUser = (id: number) => {
-    setUsers((prev) => {
-      const updated = prev.filter((user) => user.id !== id);
-
-      localStorage.setItem("users", JSON.stringify(updated));
-
-      return updated;
-    });
-  };
-
-  return { users, addUser, updateUser, deleteUser };
 };

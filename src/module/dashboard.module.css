@@ -317,3 +317,49 @@ input {
   background-color: rgba(225, 6, 6, 0.867);
   font-size: 16px;
 }
+
+.formInput {
+  width: 80%;
+  display: flex;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 5px;
+  margin: 5px;
+  height: 30px;
+  outline: none;
+  background-color: white;
+  color: black;
+  font-size: 15px;
+}
+
+.usereditbtn {
+  width: 80px;
+  margin: 5px;
+  padding: 10px;
+  background-color: rgba(6, 68, 225, 0.867);
+  font-size: 16px;
+}
+.userdeletebtn {
+  width: 90px;
+  margin: 5px;
+  padding: 10px;
+  background-color: rgba(225, 6, 6, 0.867);
+  font-size: 16px;
+}
+.error {
+  color: crimson;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.loginForm {
+  width: 50%;
+  padding: 20px;
+  margin: 10px;
+  background-color: white;
+  color: black;
+  margin: auto;
+}
