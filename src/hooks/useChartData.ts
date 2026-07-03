@@ -1,28 +1,15 @@
-import { useEffect, useState } from "react";
-import chartdata from "../data/chartdata.json";
-import type { Charts } from "../types/charts";
+import { fetchChartData } from "../api/chartApi";
+import { useQuery } from "@tanstack/react-query";
 
 export const useChartData = () => {
-  const [data, setData] = useState<Charts[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasError, sethasError] = useState(false);
+  const {
+    data = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["chartData"],
+    queryFn: fetchChartData,
+  });
 
-  const fetchData = async () => {
-    try {
-      setTimeout(() => {
-        setData(chartdata);
-      }, 2000);
-    } catch (error) {
-      if (error instanceof Error) {
-        sethasError(true);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-  return { data, loading, hasError };
+  return { data, isLoading, isError };
 };

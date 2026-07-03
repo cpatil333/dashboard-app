@@ -1,0 +1,370 @@
+import type { UsersType } from "../../types/user";
+import styles from "../../module/dashboard.module.css";
+import { useEffect, useState } from "react";
+import UserModal from "./UserModal";
+
+type UserListProps = {
+  users: UsersType[];
+  addUser: (newUser: UsersType) => void;
+  //   updateUser: (updateUser: UsersType) => void;
+  //   deleteUser: (id: number) => void;
+};
+
+const UserList = ({ users, addUser }: UserListProps) => {
+  const [isModal, setIsModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<"name" | "email" | "role">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [filteredData, setFilteredData] = useState<UsersType[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 3;
+
+  //search criteria
+  useEffect(() => {
+    if (searchTerm.trim() !== "") {
+      const filteredUsers = users.filter((user) => {
+        return (
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+
+      setFilteredData(filteredUsers);
+    } else {
+      setFilteredData(users);
+    }
+    setCurrentPage(1);
+  }, [users, searchTerm]);
+
+  const sortedData = () => {
+    const sorted = [...filteredData];
+
+    sorted.sort((a, b) => {
+      let comparison: number;
+
+      if (sortField === "name") {
+        comparison = a.name.localeCompare(b.name);
+      } else if (sortField === "email") {
+        comparison = a.email.localeCompare(b.email);
+      } else {
+        comparison = a.role.localeCompare(b.role);
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return sorted;
+  };
+
+  //pagination
+  const totalPages = Math.ceil(sortedData().length / perPage);
+  const startIndex = (currentPage - 1) * perPage;
+  const paginationData = sortedData().slice(startIndex, startIndex + perPage);
+
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleSort = (field: "name" | "email" | "role") => {
+    if (field === sortField) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex" }}>
+        <button onClick={() => setIsModal(true)}>Add User</button>
+        <input
+          type="text"
+          value={searchTerm}
+          placeholder="Search here.."
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style={{ width: "250px" }} onClick={() => handleSort("name")}>
+              Name {sortField === "name" && (sortOrder === "asc" ? "▲" : "▼")}
+            </th>
+            <th style={{ width: "250px" }} onClick={() => handleSort("email")}>
+              Email {sortField === "email" && (sortOrder === "asc" ? "▲" : "▼")}
+            </th>
+            <th style={{ width: "150px" }} onClick={() => handleSort("role")}>
+              Role {sortField === "role" && (sortOrder === "asc" ? "▲" : "▼")}
+            </th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginationData.map((user: UsersType) => (
+            <tr key={user.id}>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>{user.role}</td>
+              <td>
+                <button className={styles.usereditbtn}>✏ Edit</button>
+                <button className={styles.userdeletebtn}>🗑 Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div>
+        <button disabled={currentPage === 1} onClick={handlePrevious}>
+          Previous
+        </button>
+        <span>
+          {currentPage} of {totalPages || 1}
+        </span>
+        <button disabled={currentPage === totalPages} onClick={handleNext}>
+          Next
+        </button>
+      </div>
+      {isModal && <UserModal addUser={addUser} setIsModal={setIsModal} />}
+    </div>
+  );
+};
+
+export default UserList;
+
+==========================
+
+import React, {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
+import styles from "../user/UserModal.module.css";
+import type { UsersType } from "../../types/user";
+
+type UserModalProps = {
+  addUser: (newUser: UsersType) => void;
+  setIsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedUser: UsersType | null;
+  updateUser: (updatedUser: UsersType) => void;
+};
+const UserModal = ({
+  addUser,
+  selectedUser,
+  updateUser,
+  setIsModal,
+}: UserModalProps) => {
+  const [inputValue, setInputValue] = useState<UsersType>({
+    id: 0,
+    name: "",
+    email: "",
+    role: "User",
+  });
+
+  useEffect(() => {
+    if (selectedUser) {
+      setInputValue(selectedUser);
+    }
+  }, [selectedUser]);
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (
+      !inputValue.name.trim() ||
+      !inputValue.email.trim() ||
+      !inputValue.role
+    ) {
+      return;
+    }
+    if (selectedUser) {
+      updateUser(inputValue);
+    } else {
+      addUser({ ...inputValue, id: Date.now() });
+    }
+    setInputValue({ id: 0, name: "", email: "", role: "User" });
+    setIsModal(false);
+  };
+
+  const handleInput = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    setInputValue((prev) => ({ ...prev, [name]: value }));
+  };
+
+  return (
+    <div className={styles.modalOveray}>
+      <div className={styles.modalTitle}>
+        <div className={styles.modalcontent}>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formInput}>
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                placeholder="Enter Name"
+                name="name"
+                value={inputValue.name}
+                onChange={handleInput}
+              />
+            </div>
+            <div className={styles.formInput}>
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter Email"
+                value={inputValue.email}
+                onChange={handleInput}
+              />
+            </div>
+            <div className={styles.formInput}>
+              <label htmlFor="email">Role</label>
+              <select
+                value={inputValue.role}
+                name="role"
+                onChange={handleInput}
+              >
+                <option value="">Select Role</option>
+                <option value="Admin">Admin</option>
+                <option value="User">User</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" onClick={() => setIsModal(false)}>
+                Close
+              </button>
+              <button type="submit">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UserModal;
+
+==================
+
+import { useEffect, useState } from "react";
+import chartdata from "../data/chartdata.json";
+import type { Charts } from "../types/charts";
+
+export const useChartData = () => {
+  const [data, setData] = useState<Charts[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasError, sethasError] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setData(chartdata);
+    } catch (error) {
+      if (error instanceof Error) {
+        sethasError(true);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+  return { data, loading, hasError };
+};
+===================
+
+import { useEffect, useState } from "react";
+import type { UsersType } from "../types/user";
+import { Users } from "../data/users";
+
+export const useUsers = () => {
+  const [users, setUsers] = useState<UsersType[]>(() => {
+    try {
+      const storageUsers = localStorage.getItem("users");
+
+      return storageUsers ? JSON.parse(storageUsers) : Users;
+    } catch {
+      return Users;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("users", JSON.stringify(users));
+  }, [users]);
+
+  const addUser = (newUser: UsersType) => {
+    setUsers((prev) => [...prev, newUser]);
+  };
+
+  const updateUser = (updatedUser: UsersType) => {
+    setUsers((prev) => {
+      const updated = prev.map((user) =>
+        user.id === updatedUser.id ? updatedUser : user,
+      );
+
+      localStorage.setItem("users", JSON.stringify(updated));
+
+      return updated;
+    });
+  };
+
+  const deleteUser = (id: number) => {
+    setUsers((prev) => {
+      const updated = prev.filter((user) => user.id !== id);
+
+      localStorage.setItem("users", JSON.stringify(updated));
+
+      return updated;
+    });
+  };
+
+  return { users, addUser, updateUser, deleteUser };
+};
+
+==================
+
+import { useEffect, useState } from "react";
+import { type Notification } from "../types/notification";
+import notification from "../data/notification.json";
+
+export const useNotifications = () => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const [notificationHasError, setNotificationHasError] = useState(false);
+
+  const notificationData = notification;
+
+  useEffect(() => {
+    try {
+      let currentIndex = 0;
+      const intervalId = setInterval(() => {
+        if (currentIndex < notificationData.length) {
+          setNotifications((prev) => [...prev, notificationData[currentIndex]]);
+          currentIndex++;
+        } else {
+          clearInterval(intervalId);
+          setNotificationsLoading(false);
+        }
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    } catch (error: unknown) {
+      setNotificationHasError(true);
+      setNotificationsLoading(false);
+    }
+  }, [notificationData]);
+
+  return { notifications, notificationsLoading, notificationHasError };
+};
+
+=================
+

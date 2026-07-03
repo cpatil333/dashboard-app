@@ -24,7 +24,7 @@ type DashboardProps = {
 };
 
 const Dashboard = ({ theme, setTheme, setToast }: DashboardProps) => {
-  const { data, loading, hasError } = useChartData();
+  const { data, isLoading, isError } = useChartData();
   const { notifications, notificationsLoading, notificationHasError } =
     useNotifications();
   const { dataTable, dataTableLoadering, dataTableHasError } = useDataTable();
@@ -34,7 +34,7 @@ const Dashboard = ({ theme, setTheme, setToast }: DashboardProps) => {
     <div>
       <ThemeToggle theme={theme} setTheme={setTheme} setToast={setToast} />
       <StatsGrid dashboardData={dashboardData} />
-      <ChartCard chartData={data} loading={loading} hasError={hasError} />
+      <ChartCard chartData={data} loading={isLoading} hasError={isError} />
       <UserList
         users={users}
         addUser={addUser}

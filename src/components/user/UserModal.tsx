@@ -1,64 +1,99 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import React, { useEffect } from "react";
 import styles from "../user/UserModal.module.css";
 import type { UsersType } from "../../types/user";
+import { useForm } from "react-hook-form";
 
 type UserModalProps = {
   addUser: (newUser: UsersType) => void;
+  setIsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedUser: UsersType | null;
+  updateUser: (updatedUser: UsersType) => void;
 };
-
-const UserModal = ({ addUser }: UserModalProps) => {
-  const [inputValue, setInputValue] = useState<UsersType>({
-    id: 0,
-    name: "",
-    email: "",
-    role: "",
+const UserModal = ({
+  addUser,
+  selectedUser,
+  updateUser,
+  setIsModal,
+}: UserModalProps) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<UsersType>({
+    defaultValues: {
+      id: 0,
+      name: "",
+      email: "",
+      role: "User",
+    },
   });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    addUser(inputValue);
-  };
+  useEffect(() => {
+    if (selectedUser) {
+      reset(selectedUser);
+    }
+  }, [selectedUser, reset]);
 
-  const handleInput = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setInputValue((prev) => ({ ...prev, [name]: value }));
+  const onSubmit = (data: UsersType) => {
+    if (selectedUser) {
+      updateUser(data);
+    } else {
+      addUser({ ...data, id: Date.now() });
+    }
+    reset();
+    setIsModal(false);
   };
 
   return (
     <div className={styles.modalOveray}>
       <div className={styles.modalTitle}>
         <div className={styles.modalcontent}>
-          <form onSubmit={handleSubmit}>
+          <h2 style={{ color: "black" }}>
+            {selectedUser ? "Edit User" : "Add User"}
+          </h2>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className={styles.formInput}>
               <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                placeholder="Enter Name"
-                value={inputValue.name}
-                onChange={handleInput}
-              />
+              <input {...register("name", { required: "Name is required" })} />
+              {errors.name && (
+                <p className={styles.error}>{errors.name?.message}</p>
+              )}
             </div>
             <div className={styles.formInput}>
               <label htmlFor="email">Email</label>
               <input
                 type="email"
-                placeholder="Enter Email"
-                value={inputValue.email}
-                onChange={handleInput}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\$+@\$+\.\$+$/,
+                    message: "Invalid email",
+                  },
+                })}
               />
+              {errors.email && (
+                <p className={styles.error}>{errors.email?.message}</p>
+              )}
             </div>
             <div className={styles.formInput}>
-              <label htmlFor="email">Role</label>
-              <select value={inputValue.email} onChange={handleInput}>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
+              <label htmlFor="role">Role</label>
+              <select {...register("role", { required: "Role is required" })}>
+                <option value="">Select Role</option>
+                <option value="Admin">Admin</option>
+                <option value="User">User</option>
               </select>
+              {errors.role && (
+                <p className={styles.error}>{errors.role?.message}</p>
+              )}
             </div>
             <div>
-              <button>Close</button>
-              <button type="submit">Submit</button>
+              <button type="button" onClick={() => setIsModal(false)}>
+                Close
+              </button>
+              <button type="submit">{selectedUser ? "Edit" : "Add"}</button>
             </div>
           </form>
         </div>

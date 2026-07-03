@@ -1,0 +1,71 @@
+.card {
+  width: 270px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Common Skeleton Style */
+.icon,
+.line,
+.lineSmall {
+  position: relative;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+/* Circle */
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+/* First line */
+.line {
+  width: 90%;
+  height: 18px;
+  border-radius: 6px;
+}
+
+/* Second line */
+.lineSmall {
+  width: 55%;
+  height: 14px;
+  border-radius: 6px;
+}
+
+/* Shimmer */
+.icon::after,
+.line::after,
+.lineSmall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent 100%
+  );
+
+  transform: translateX(-100%);
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
